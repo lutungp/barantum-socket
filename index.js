@@ -1,25 +1,33 @@
-var express = require('express');
-var bodyParser = require('body-parser');
-var app = express();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
-
+var express = require('express')
+var app = express()
 require('dotenv').config();
 
-var fs = require('fs');
-var creds = '';
+const http = require('http').Server(app);
 
-var redis = require('redis');
-var client = '';
+const Redis = require("ioredis");
+const redisClient = new Redis();
+
+var cors = require('cors')
+app.use(cors())
+
+const io = require('socket.io')(http, {
+  cors: {
+    origin: [process.env.CLIENT_LINK],
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    preflightContinue: false,
+    optionsSuccessStatus: 200
+  },
+  adapter: require("socket.io-redis")({
+    pubClient: redisClient,
+    subClient: redisClient.duplicate(),
+  }),
+});
+
 var port = process.env.PORT || 8000;
 
-// Express Middleware for serving static
-// files and parsing the request body
-app.use(express.static('public'));
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
+var indexRouter = require('./routes/index');
 
+app.use('/', indexRouter);
 // Start the Server
 http.listen(port, function() {
     console.log('Server Started. Listening on *:' + port);
