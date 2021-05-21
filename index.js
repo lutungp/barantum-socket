@@ -45,7 +45,7 @@ io.use(async (socket, next) => {
   if (!username) {
     return next(new Error("invalid username"));
   }
-  socket.sessionID = randomId();
+  socket.sessionID = username;
   socket.userID = randomId();
   socket.username = username;
   next();
@@ -100,6 +100,19 @@ io.on("connection", async (socket) => {
       });
     }
   });
+
+  // private message 
+  socket.on("pingUser1", async ({ to }) => {
+    const message = {
+      content : "hy",
+      from: socket.userID,
+      to,
+    };
+    console.log(message)
+
+    const session = await sessionStore.findSession(to);
+    socket.to(session.userID).to(socket.userID).emit("pingUser1", message);
+  })
 })
 
 var port = process.env.PORT || 8000;
