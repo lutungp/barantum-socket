@@ -108,7 +108,6 @@ io.on("connection", async (socket) => {
       from: socket.userID,
       to,
     };
-    console.log(message)
 
     const session = await sessionStore.findSession(to);
     socket.to(session.userID).to(socket.userID).emit("pingUser1", message);
