@@ -73,7 +73,6 @@ io.on("connection", async (socket) => {
   // fetch existing users
   const users = [];
   const [sessions] = await Promise.all([
-    // messageStore.findMessagesForUser(socket.userID),
     sessionStore.findAllSessions(),
   ]);
 
